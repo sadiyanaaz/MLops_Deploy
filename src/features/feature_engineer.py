@@ -85,7 +85,9 @@ class FeatureEngineer:
         # Step 1: Scaling
         logger.info(f"Applying {self.scaling_method} scaling...")
         X_scaled = self.scaler.fit_transform(X_transformed)
-        X_transformed = pd.DataFrame(X_scaled, columns=current_feature_names, index=X.index)
+        X_transformed = pd.DataFrame(
+            X_scaled, columns=current_feature_names, index=X.index
+        )
 
         # Step 2: Polynomial Features
         if self.create_polynomial:

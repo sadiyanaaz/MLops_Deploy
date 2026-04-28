@@ -124,7 +124,7 @@ st.markdown(
     """
     <div style='text-align: center'>
         <p>Built with ❤️ using Streamlit |
-        <a href='https://github.com/VenkateswarluPudur/mlops'>GitHub Repo</a></p>
+        <a href='https://github.com/sadiyanaaz/MLops_Deploy.git'>GitHub Repo</a></p>
     </div>
     """,
     unsafe_allow_html=True,

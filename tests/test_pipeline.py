@@ -22,10 +22,10 @@ from models.trainer import ModelTrainer
 from evaluation.evaluator import ModelEvaluator
 from models.registry import ModelRegistry
 
-
 # ============================================================================
 # FIXTURES
 # ============================================================================
+
 
 @pytest.fixture
 def sample_iris_data():
@@ -97,9 +97,11 @@ class TestDataLoader:
         assert info["n_features"] == 4
         assert "species" in info["columns"]
 
+
 # ============================================================================
 # PREPROCESSOR TESTS
 # ============================================================================
+
 
 class TestDataPreprocessor:
     """Tests for DataPreprocessor class."""
@@ -147,6 +149,7 @@ class TestDataPreprocessor:
 # FEATURE ENGINEER TESTS
 # ============================================================================
 
+
 class TestFeatureEngineer:
     """Tests for FeatureEngineer class."""
 
@@ -156,10 +159,7 @@ class TestFeatureEngineer:
         splits = preprocessor.process(sample_iris_data)
         X_train, y_train = splits["train"]
 
-        fe = FeatureEngineer(
-            create_polynomial=False, 
-            feature_selection=False
-            )
+        fe = FeatureEngineer(create_polynomial=False, feature_selection=False)
         X_scaled = fe.fit_transform(X_train, y_train)
 
         # Check scaling (standard scaler should have ~0 mean, ~1 std)
@@ -173,9 +173,7 @@ class TestFeatureEngineer:
         X_train, y_train = splits["train"]
 
         fe = FeatureEngineer(
-            create_polynomial=True, 
-            polynomial_degree=2, 
-            feature_selection=False
+            create_polynomial=True, polynomial_degree=2, feature_selection=False
         )
         X_poly = fe.fit_transform(X_train, y_train)
 
@@ -217,6 +215,7 @@ class TestFeatureEngineer:
 # ============================================================================
 # MODEL TRAINER TESTS
 # ============================================================================
+
 
 class TestModelTrainer:
     """Tests for ModelTrainer class."""
@@ -297,6 +296,7 @@ class TestModelTrainer:
 # EVALUATOR TESTS
 # ============================================================================
 
+
 class TestModelEvaluator:
     """Tests for ModelEvaluator class."""
 
@@ -320,9 +320,7 @@ class TestModelEvaluator:
         y_pred = np.array([0, 0, 1, 1, 2, 1])
 
         evaluator = ModelEvaluator(
-            save_plots=True, 
-            plots_path=temp_dir, 
-            class_names=["a", "b", "c"]
+            save_plots=True, plots_path=temp_dir, class_names=["a", "b", "c"]
         )
 
         plot_path = evaluator.plot_confusion_matrix(y_true, y_pred)
@@ -333,6 +331,7 @@ class TestModelEvaluator:
 # MODEL REGISTRY TESTS
 # ============================================================================
 
+
 class TestModelRegistry:
     """Tests for ModelRegistry class."""
 
@@ -340,6 +339,7 @@ class TestModelRegistry:
     def trained_model(self, sample_iris_data):
         """Create a trained model."""
         from sklearn.ensemble import RandomForestClassifier
+
         preprocessor = DataPreprocessor()
         splits = preprocessor.process(sample_iris_data)
         X_train, y_train = splits["train"]
@@ -364,15 +364,9 @@ class TestModelRegistry:
         """Test registering multiple versions."""
         registry = ModelRegistry(registry_path=temp_dir)
 
-        v1 = registry.register_model(
-            trained_model, "test_model", {"accuracy": 0.90}
-            )
-        v2 = registry.register_model(
-            trained_model, "test_model", {"accuracy": 0.92}
-            )
-        v3 = registry.register_model(
-            trained_model, "test_model", {"accuracy": 0.95}
-            )
+        v1 = registry.register_model(trained_model, "test_model", {"accuracy": 0.90})
+        v2 = registry.register_model(trained_model, "test_model", {"accuracy": 0.92})
+        v3 = registry.register_model(trained_model, "test_model", {"accuracy": 0.95})
 
         assert v1 == "1.0.0"
         assert v2 == "1.0.1"
@@ -382,9 +376,7 @@ class TestModelRegistry:
         """Test retrieving a model."""
         registry = ModelRegistry(registry_path=temp_dir)
 
-        registry.register_model(
-            trained_model, "test_model", {"accuracy": 0.95}
-                                )
+        registry.register_model(trained_model, "test_model", {"accuracy": 0.95})
 
         loaded_model, metadata = registry.get_model("test_model", "1.0.0")
 
@@ -394,17 +386,12 @@ class TestModelRegistry:
     def test_promote_to_production(self, trained_model, temp_dir):
         """Test promoting model to production."""
         registry = ModelRegistry(
-            registry_path=temp_dir, 
-            promotion_threshold={"accuracy": 0.90}
+            registry_path=temp_dir, promotion_threshold={"accuracy": 0.90}
         )
 
-        registry.register_model(
-            trained_model, "test_model", {"accuracy": 0.95}
-            )
+        registry.register_model(trained_model, "test_model", {"accuracy": 0.95})
 
-        success = registry.promote_to_production(
-            "test_model", "1.0.0", force=False
-            )
+        success = registry.promote_to_production("test_model", "1.0.0", force=False)
 
         assert success
         model, _ = registry.get_production_model()
@@ -414,6 +401,7 @@ class TestModelRegistry:
 # ============================================================================
 # INTEGRATION TESTS
 # ============================================================================
+
 
 class TestIntegration:
     """Integration tests for the full pipeline."""
@@ -452,18 +440,13 @@ class TestIntegration:
         y_pred = trainer.predict(X_test_fe)
 
         evaluator = ModelEvaluator(
-            plots_path=temp_dir, 
-            class_names=["setosa", "versicolor", "virginica"]
+            plots_path=temp_dir, class_names=["setosa", "versicolor", "virginica"]
         )
         metrics = evaluator.evaluate(y_test.values, y_pred)
 
         # 6. Register
         registry = ModelRegistry(registry_path=f"{temp_dir}/registry")
-        version = registry.register_model(
-            trainer.model, 
-            "iris_classifier", 
-            metrics
-            )
+        version = registry.register_model(trainer.model, "iris_classifier", metrics)
 
         # Assertions
         assert metrics["accuracy"] > 0.5  # Should be better than random
