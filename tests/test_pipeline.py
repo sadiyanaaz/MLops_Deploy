@@ -8,6 +8,7 @@ import shutil
 import sys
 import tempfile
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -17,10 +18,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from data.data_loader import DataLoader
 from data.preprocessor import DataPreprocessor
-from features.feature_engineer import FeatureEngineer
-from models.trainer import ModelTrainer
 from evaluation.evaluator import ModelEvaluator
+from features.feature_engineer import FeatureEngineer
 from models.registry import ModelRegistry
+from models.trainer import ModelTrainer
 
 # ============================================================================
 # FIXTURES
