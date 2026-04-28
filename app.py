@@ -120,6 +120,7 @@ with col4:
 
 # Footer
 st.markdown("---")
+
 st.markdown(
     """
     <div style='text-align: center'>
